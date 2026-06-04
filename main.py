@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import time
 import requests
 from bs4 import BeautifulSoup
@@ -144,9 +144,14 @@ def lockout(match_id):
     # df_t = df.T.set_index(0)
 
     target_time_str = match_id_split[1]
-    current_datetime = datetime.now()
-    target_time = datetime.strptime(target_time_str, "%H:%M:%S").replace(year=current_datetime.year, month=current_datetime.month, day=current_datetime.day)
-    utc_start_time = target_time.timestamp() - 19800
+    
+    IST = timezone(timedelta(hours=5, minutes=30))
+    current_ist = datetime.now(IST)
+    target_time_ist = datetime.strptime(target_time_str, "%H:%M:%S").replace(
+        year=current_ist.year, month=current_ist.month, day=current_ist.day, tzinfo=IST
+    )
+    
+    utc_start_time = target_time_ist.timestamp()
     end_time = utc_start_time + int(match_duration) * 60
 
     write_placeholder = st.empty()
@@ -237,27 +242,30 @@ def waiting_room(match_id):
 
     target_time_str = match_id_split[1]
 
-    current_datetime = datetime.now()
+    IST = timezone(timedelta(hours=5, minutes=30))
+    current_ist = datetime.now(IST)
 
-    target_time = datetime.strptime(target_time_str, "%H:%M:%S").replace(year=current_datetime.year, month=current_datetime.month, day=current_datetime.day)
+    target_time_ist = datetime.strptime(target_time_str, "%H:%M:%S").replace(
+        year=current_ist.year, month=current_ist.month, day=current_ist.day, tzinfo=IST
+    )
 
-    time_difference = target_time - current_datetime
+    time_difference = target_time_ist - current_ist
 
-    minutes = int(time_difference.total_seconds() // 60) - 330
-    seconds = int(time_difference.total_seconds() % 60)
+    seconds_remaining = int(time_difference.total_seconds())
+    minutes = seconds_remaining // 60
+    seconds = seconds_remaining % 60
 
     timer_placeholder = st.empty()
 
-    while minutes >= 0:
+    while seconds_remaining >= 0:
+        current_ist = datetime.now(IST)
+        time_difference = target_time_ist - current_ist
+        
+        seconds_remaining = int(time_difference.total_seconds())
+        minutes = seconds_remaining // 60
+        seconds = seconds_remaining % 60
 
-        current_datetime = datetime.now()
-
-        time_difference = target_time - current_datetime
-
-        minutes = int(time_difference.total_seconds() // 60) - 330
-        seconds = int(time_difference.total_seconds() % 60)
-
-        if minutes<0: break
+        if seconds_remaining < 0: break
 
         timer_placeholder.write(f"Time remaining: {minutes:02d}:{seconds:02d}")
 
