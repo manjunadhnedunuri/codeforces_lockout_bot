@@ -29,7 +29,7 @@ def get_solved_problems(username):
         
     else:
         print("Failed to fetch data. Make sure the usernames of the players are correct.")
-        return None
+        return set()
     
 
 @st.cache_data(ttl=3600)
@@ -66,7 +66,7 @@ def getlatestsolved(username):
         return solved_problem
     else:
         print("Failed to fetch data. Make sure the usernames of the players are correct.")
-        return None
+        return set()
 
 
 def colour_green(val): return 'background-color: green'
