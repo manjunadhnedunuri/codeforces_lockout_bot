@@ -14,7 +14,7 @@ Codeforces Lockout is a competitive programming format where participants go hea
 
 2. Problems already solved by any participant are filtered out to ensure fairness.
 
-3. Problem data is collected through web scraping from Codeforces, while solved problems for each user are fetched via the Codeforces API.
+3. Problem data and real-time solve statuses are efficiently fetched and strictly filtered using the official Codeforces API, with robust caching to bypass restrictions and handle rate limits.
 
 4. When a participant solves a problem, the corresponding cell turns green for them and red for opponents, indicating that it is now locked.
 

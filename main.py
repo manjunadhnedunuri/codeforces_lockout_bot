@@ -4,9 +4,7 @@ import numpy as np
 from datetime import datetime, timedelta, timezone
 import time
 import requests
-from bs4 import BeautifulSoup
 import random
-import cloudscraper
 
 
 def get_solved_problems(username):
