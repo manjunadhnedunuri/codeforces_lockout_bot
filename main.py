@@ -143,7 +143,11 @@ def lockout(match_id):
 
     # df_t = df.T.set_index(0)
 
-    end_time = time.time() + int(match_duration)*60
+    target_time_str = match_id_split[1]
+    current_datetime = datetime.now()
+    target_time = datetime.strptime(target_time_str, "%H:%M:%S").replace(year=current_datetime.year, month=current_datetime.month, day=current_datetime.day)
+    utc_start_time = target_time.timestamp() - 19800
+    end_time = utc_start_time + int(match_duration) * 60
 
     write_placeholder = st.empty()
 
@@ -199,29 +203,31 @@ def lockout(match_id):
 
         time.sleep(1)
     
-    user = st.session_state['user']
+    user = st.session_state.get('user', '')
 
     Names = {'arnavra3' : 'Arno', 'KushKushal' : 'Kush', 'arrow_s' : 'Ashu', 'asterisk11' : 'Koni', 'isolve1400s' : 'Arno', 'kushkushali' : 'Rrho', 'redcar' : 'Satwik', 'bluecar' : 'Satwik'}
 
-    winner = user
-    max = scoreboard[user]
+    winner = players[0] if len(players) > 0 else "Unknown"
+    max_score = -1
 
     for player in players:
-        if max < scoreboard[player]:
-            max = scoreboard[player]
+        if max_score < scoreboard[player]:
+            max_score = scoreboard[player]
             winner = player
-        elif max == scoreboard[player]:
-            if penalty[player] < penalty[winner]:
+        elif max_score == scoreboard[player]:
+            if penalty[player] < penalty.get(winner, 999999):
                 winner = player
 
-    name = user
-    if user in Names: name = Names[user]
-
     st.write(f"Winner : {winner}")
-    if user==winner:
-        st.write(f"Congrats, {name}!!")
+    
+    if user in scoreboard:
+        name = Names.get(user, user)
+        if user == winner:
+            st.write(f"Congrats, {name}!!")
+        else:
+            st.write(f"You lost, {name} :(")
     else:
-        st.write(f"You lost, {name} :(")
+        st.write(f"Spectating match.")
 
 
 
