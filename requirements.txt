@@ -1,0 +1,9 @@
+altair
+numpy
+pandas
+pydeck
+streamlit
+requests
+beautifulsoup4
+datetime
+cloudscraper
