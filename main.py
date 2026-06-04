@@ -155,7 +155,7 @@ def lockout(match_id):
 
     already_solved_set = set()
 
-    style1 = df_t.style.applymap(colour_empty, subset=pd.IndexSlice[players[0],0])
+    style1 = df_t.style.map(colour_empty, subset=pd.IndexSlice[players[0],0])
 
     finished = 0
 
@@ -188,9 +188,9 @@ def lockout(match_id):
 
                     for ii in range(len_players):
 
-                        if ii==i: style1 = style1.applymap(colour_green, subset=pd.IndexSlice[players[ii],j])
+                        if ii==i: style1 = style1.map(colour_green, subset=pd.IndexSlice[players[ii],j])
                         
-                        else: style1 = style1.applymap(colour_red, subset=pd.IndexSlice[players[ii],j])
+                        else: style1 = style1.map(colour_red, subset=pd.IndexSlice[players[ii],j])
 
         df_placeholder.dataframe(style1, use_container_width=True)
 
