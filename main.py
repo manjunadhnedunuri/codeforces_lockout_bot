@@ -32,23 +32,19 @@ def get_solved_problems(username):
         return None
     
 
+@st.cache_data(ttl=3600)
 def get_problems(rating):
-
-    url = f"https://codeforces.com/problemset?tags={rating}-{rating}"
-    
-    scraper = cloudscraper.create_scraper()  # Bypass Cloudflare
-    response = scraper.get(url)
-    
-    # print("Response Code:", response.status_code)
-
+    response = requests.get("https://codeforces.com/api/problemset.problems")
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        problems = soup.find_all('td', class_="id")
-        problem_list = [item.find('a').text.strip() for item in problems if item.find('a')]
-        return problem_list
-        
+        try:
+            problems = response.json()["result"]["problems"]
+            problem_list = [str(p["contestId"]) + p["index"] for p in problems if p.get("rating") == int(rating)]
+            return problem_list
+        except Exception as e:
+            print("Error parsing Codeforces API response:", e)
+            return []
     else:
-        print("Failed to fetch problems. Make sure the ratings are multiples of 100 between 800 and 3500. Status Code:", response.status_code)
+        print("Failed to fetch problems from API. Status Code:", response.status_code)
         return []
 
 
@@ -277,6 +273,10 @@ def generate_match_id(user,players,target_time_str,match_duration,ratings,points
     problems=[]
     for rating in ratings:
         templist = get_problems(rating)
+        if not templist:
+            st.error(f"Could not fetch problems for rating {rating}. Please try again.")
+            return None
+            
         safe=10000
         while safe:
             temp = random.choice(templist)
@@ -315,11 +315,12 @@ def create_click():
 
 
 def lockout_click(user,players,target_time_str,match_duration,ratings,points):
+    match_id = generate_match_id(user,players,target_time_str,match_duration,ratings,points,"lockout")
+    
+    if not match_id:
+        return
 
     st.session_state['lockout'] = 1  
-
-    match_id = generate_match_id(user,players,target_time_str,match_duration,ratings,points,"lockout")
-
     st.session_state['match_id'] = match_id
 
     st.write(f"Send this match id to other players: {match_id}")  
